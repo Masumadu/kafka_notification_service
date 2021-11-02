@@ -1,0 +1,2 @@
+from .test_customer_controller import TestAdminController
+from .test_customer_views import TestCustomerViews
