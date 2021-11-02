@@ -1,9 +1,8 @@
 import os
 from tests import BaseTestCase
 import pytest
+from config import Config
 
-# basedir = os.path.abspath(os.path.dirname(__file__))
-# the_basedir = os.path.abspath(os.path.join(__file__, os.pardir))
 basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -18,4 +17,4 @@ class TestAppConfig(BaseTestCase):
         )
         self.assertTrue(self.create_app().config["TESTING"])
         self.assertTrue(self.create_app().config["DEVELOPMENT"])
-        self.assertEqual(self.create_app().config["SECRET_KEY"], "thisisthesecretkey")
+        self.assertEqual(self.create_app().config["SECRET_KEY"], Config.SECRET_KEY)
