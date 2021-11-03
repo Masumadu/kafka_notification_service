@@ -1,6 +1,6 @@
 import logging
 import os
-
+# from app.consumer import consume
 from loguru import logger
 from flask import Flask, jsonify
 from flask_mongoengine import MongoEngine
@@ -45,12 +45,12 @@ def create_app(config="config.DevelopmentConfig"):
         if environment == "production":
             cfg = import_string("config.ProductionConfig")()
         app.config.from_object(cfg)
-
         # add extensions
         register_extensions(app)
         app.logger.addHandler(InterceptHandler())
         register_blueprints(app)
         register_swagger_definitions(app)
+        # consume(app)
         return app
 
 

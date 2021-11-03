@@ -1,27 +1,21 @@
-from app.core.result import Result
-from app.core.service_result import ServiceResult
-from app.repositories import CustomerRepository
-from app.core.notifications.notifier import Notifier
-from app.services import EmailNotification
+import requests
 
-notification_handler = Notifier()
-email_notification = EmailNotification()
+from app.repositories import CustomerRepository
+from app.services import NotificationService
+from flask import url_for
+
+notification_service = NotificationService()
 
 
 class CustomerController:
     def __init__(self, customer_repository: CustomerRepository):
         self.customer_repository = customer_repository
 
-    def index(self):
-        customers = self.customer_repository.index()
-        return ServiceResult(Result(customers, 200))
+    def send_mail(self, customer_info: dict):
+        notification_service.send_mail(customer_info)
+        return {"status": "email sent"}
 
-    def create(self, data):
-        customer = self.customer_repository.create(data)
-        email_notification.recipient = "michaelasumadu10@gmail.com"
-        notification_handler.notify(email_notification)
-        return ServiceResult(Result(customer, 201))
+    # def send_sms(self, customer_info: dict):
+    #     notification_service.send_sms(customer_info)
+    #     return {"status": "sms sent"}
 
-    def find_by_id(self, obj_id):
-        customer = self.customer_repository.find_by_id(obj_id)
-        return ServiceResult(Result(customer, 200))

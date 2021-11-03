@@ -1,23 +1,26 @@
-from app.core.notifications import NotificationHandler
-from app.schema import ReadCustomerSchema
-from app import mail
+# from app.utils.task_scheduler import send_mail, send_sms
 from flask_mail import Message
+from app import mail
+from config import Config
 from flask import render_template
 
-customer_schema = ReadCustomerSchema()
 
+class NotificationService:
 
-class EmailNotification(NotificationHandler):
-    customer_info: dict
-
-    def send(self):
+    def send_mail(self, email_info: dict):
+        # send_mail.delay(email_info)
         msg = Message(
-            subject='Testing Email Configuration',
-            sender='flask_app@test.com',
-            recipients=['paul@mailtrap.io'],
-            body=render_template("verify_account.txt", username=self.customer_info.get("username"),
-                                 url=self.customer_info.get("url")),
-            html=render_template("verify_account.html", username=self.customer_info.get("username"),
-                                 url=self.customer_info.get("url"))
+            subject='Testing Celery Email Configuration',
+            sender=Config.ADMIN_EMAIL,
+            recipients=[email_info.get("email")],
+            body=render_template("verify_account.txt",
+                                 username=email_info.get("username"),
+                                 url=email_info.get("verification_link")),
+            html=render_template("verify_account.html",
+                                 username=email_info.get("username"),
+                                 url=email_info.get("verification_link"))
         )
         mail.send(msg)
+
+    # def send_sms(self, sms_info: dict):
+    #     # send_sms.delay(sms_info)

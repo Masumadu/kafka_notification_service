@@ -1,5 +1,6 @@
-FROM python:3.8
-ENV PYTHONBUFFERED 1
+FROM python:3.9
+#ENV PYTHONBUFFERED 1
+ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 
@@ -19,4 +20,4 @@ COPY . .
 
 #CMD python /app/main/main.py 0.0.0.0:8000
 
-CMD [ "flask", "run", "--host=0.0.0.0"]
+CMD [ "flask", "run", "--host=0.0.0.0", "--port=5002"]

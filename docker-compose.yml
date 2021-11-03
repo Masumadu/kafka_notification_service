@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: flask_notification_service
     environment:
       DB_USER: ${DB_USER}
       DB_SERVER: ${DB_SERVER}
@@ -16,9 +17,17 @@ services:
       REDIS_SERVER: ${REDIS_SERVER}
     command: 'flask run --host=0.0.0.0 --port=5000'
     ports:
-      - 8000:5000
+      - 5002:5000
     volumes:
       - .:/app
+    depends_on:
+      - db
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: flask_notification_service_queue
+    command: "python3 app/consumer.py"
     depends_on:
       - db
   db:
@@ -31,9 +40,9 @@ services:
     volumes:
       - $PWD/.dbdata:/var/lib/postgres
     ports:
-      - 5430:5432
-  redis:
-      image: 'redis:4-alpine'
-      command: redis-server
-      ports:
-          - '6379:6379'
+      - 5428:5432
+#  redis:
+#      image: 'redis:4-alpine'
+#      command: redis-server
+#      ports:
+#          - '6380:6379'
