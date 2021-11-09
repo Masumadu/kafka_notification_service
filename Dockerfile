@@ -23,18 +23,5 @@ RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then poetry install --no-root ; els
 # copy all files in current directory to container's app directory
 COPY . .
 
-#RUN sed -i 's/\r$//g' app/script/entrypoint.sh
-##RUN chmod +x app/script/entrypoint.sh
-#
-#RUN sed -i 's/\r$//g' app/script/start_flask.sh
-##RUN chmod +x app/script/start_flask.sh
-#
-#RUN sed -i 's/\r$//g' app/script/start_celery_worker.sh
-#RUN chmod +x app/script/start_celery_worker.sh
-
-#CMD python /app/main/main.py 0.0.0.0:8000
-
 # run command when container starts
 CMD [ "flask", "run", "--host=0.0.0.0", "--port=5002"]
-
-#ENTRYPOINT ["sh", "app/script/entrypoint.sh"]
