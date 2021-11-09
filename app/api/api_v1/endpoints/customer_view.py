@@ -13,7 +13,7 @@ obj_graph_customer = pinject.new_object_graph(
 customer_controller = obj_graph_customer.provide(CustomerController)
 
 
-@customer.route("/", methods=["GET"])
+@customer.route("/index", methods=["GET"])
 def index():
     return "index"
 
@@ -21,10 +21,8 @@ def index():
 @customer.route("/send_mail", methods=["POST"])
 def send_mail():
     return customer_controller.send_mail(request.args)
-    # return "email"
 
 
 @customer.route("/send_sms", methods=["POST"])
 def send_sms():
     return customer_controller.send_sms(request.args)
-    # return "sms"

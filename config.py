@@ -51,12 +51,9 @@ class Config:
     MAIL_USE_SSL = False
     ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
 
-    # celery
-    # CELERY_BROKER_URL = 'redis://localhost:6379/0'
-    # CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
     CELERY = {
-        "broker_url": "redis://localhost:6379",
-        "result_backend": "redis://localhost:6379",
+        "broker_url": f"amqp://guest:guest@{os.getenv('RABBITMQ_SERVER')}:5672//",
+        "result_backend": f"redis://{os.getenv('REDIS_SERVER')}:6379/0",
     }
 
     @property

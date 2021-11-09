@@ -1,6 +1,5 @@
 import logging
 import os
-# from app.consumer import consume
 from loguru import logger
 from flask import Flask, jsonify
 from flask_mongoengine import MongoEngine
@@ -11,7 +10,6 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.exceptions import HTTPException
 from werkzeug.utils import import_string
 
-# load dotenv in the base root
 from app.api_spec import spec
 from app.core.exceptions.app_exceptions import (
     app_exception_handler,
@@ -122,4 +120,5 @@ def init_celery(app=None):
             with app.app_context():
                 return self.run(*args, **kwargs)
     celery.Task = ContextTask
+
     return celery

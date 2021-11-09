@@ -1,24 +1,19 @@
 import json
-import os
-
 import pika
-# from app.core.exceptions import AppException
 from pika import exceptions
-
 import requests
 from requests.exceptions import RequestException
-
 
 print(' Connecting to server ...')
 
 try:
     connection = pika.BlockingConnection(
-        # pika.ConnectionParameters(host="localhost")
-        pika.URLParameters(os.getenv("RABBITMQ_URL"))
+        pika.ConnectionParameters(host="localhost")
+        # pika.URLParameters("amqp://guest:guest@rabbitmq:5672/")
     )
 except exceptions.AMQPConnectionError as exc:
     print("Failed to connect to RabbitMQ service. Message wont be sent.")
-    raise Exception
+    raise Exception(exc.args)
 
 channel = connection.channel()
 channel.queue_declare(queue="notification", durable=True)
@@ -32,23 +27,24 @@ def callback(ch, method, properties, body):
     if message_body.get("service_channel") == "email":
         print("processing email queue!!!")
         try:
-            # requests.post(url="http://localhost:5002/api/customer/send_mail",
-            #               params=message_body)
-            requests.post(url="http://backend:5000/api/customer/send_mail",
+            requests.post(url="http://localhost:5002/api/customer/send_mail",
                           params=message_body)
-        except RequestException as e:
-            # raise AppException.BadRequest(context=e.args[0])
-            raise Exception
+            # requests.post(url="http://backend:5001/api/customer/send_mail",
+            #               params=message_body)
+        except RequestException as exc:
+            raise Exception(exc.args)
+
     if message_body.get("service_channel") == "sms":
         print("processing sms queue!!!!")
         try:
-            # requests.post(url="http://localhost:5002/api/customer/send_sms",
-            #               params=message_body)
-            requests.post(url="http://backend:5000/api/customer/send_sms",
+            requests.post(url="http://localhost:5002/api/customer/send_sms",
                           params=message_body)
-        except RequestException as e:
-            raise Exception
-            # raise AppException.BadRequest(context=e.args[0])
+            # docker requests url
+            # requests.post(url="http://backend:5001/api/customer/send_sms",
+            #               params=message_body)
+        except RequestException as exc:
+            raise Exception(exc.args)
+
     print("Done!!!")
 
     ch.basic_ack(delivery_tag=method.delivery_tag)

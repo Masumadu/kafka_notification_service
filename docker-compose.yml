@@ -7,42 +7,63 @@ services:
     image: flask_notification_service
     environment:
       DB_USER: ${DB_USER}
-      DB_SERVER: ${DB_SERVER}
-      DEV_DB_SERVER: ${DEV_DB_SERVER}
-      TEST_DB_SERVER: ${TEST_DB_SERVER}
       DB_NAME: ${DB_NAME}
       DB_PASSWORD: ${DB_PASSWORD}
       FLASK_ENV: ${FLASK_ENV}
-      DEBUG: ${DEBUG}
       REDIS_SERVER: ${REDIS_SERVER}
-    command: 'flask run --host=0.0.0.0 --port=5000'
+    command: 'flask run --host=0.0.0.0 --port=5001'
     ports:
-      - 5002:5000
+      - 8001:5001
+    networks:
+      - notification_net
     volumes:
       - .:/app
     depends_on:
       - db
-  queue:
+  db:
+      image: postgres:12
+      restart: always
+      environment:
+        POSTGRES_USER: ${DB_USER}
+        POSTGRES_PASSWORD: ${DB_PASSWORD}
+        POSTGRES_DB: ${DB_NAME}
+      volumes:
+        - $PWD/.dbdata:/var/lib/postgres
+      ports:
+        - 5428:5432
+      networks:
+        - notification_net
+  consumer:
     build:
       context: .
       dockerfile: Dockerfile
-    image: flask_notification_service_queue
+    image: flask_notification_service_consumer
     command: "python3 app/consumer.py"
+    networks:
+      - notification_net
     depends_on:
-      - db
-  db:
-    image: postgres:12
-    restart: always
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - $PWD/.dbdata:/var/lib/postgres
-    ports:
-      - 5428:5432
-#  redis:
-#      image: 'redis:4-alpine'
-#      command: redis-server
-#      ports:
-#          - '6380:6379'
+      - backend
+      - celery_worker
+  celery_worker:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      image: flask_notification_service_celery_worker
+      networks:
+        - notification_net
+      command: "celery -A app.celery_app:app worker -l INFO"
+      volumes:
+        - .:/app
+      depends_on:
+        - redis
+  redis:
+      image: redis:6.2.6-alpine
+      command: redis-server
+      ports:
+          - '6380:6379'
+      networks:
+        - notification_net
+networks:
+  notification_net:
+    external:
+      name: authentication_network

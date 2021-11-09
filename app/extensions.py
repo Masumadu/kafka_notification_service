@@ -10,7 +10,5 @@ migrate = Migrate()
 ma = Marshmallow()
 mail = Mail()
 celery = Celery()
-# print(ext_celery)
-# jwt = JWTManager()
 db.__setattr__("GUID", GUID)
 
