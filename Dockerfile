@@ -24,4 +24,6 @@ RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then poetry install --no-root ; els
 COPY . .
 
 # run command when container starts
-CMD [ "flask", "run", "--host=0.0.0.0", "--port=5002"]
+#CMD [ "flask", "run", "--host=0.0.0.0", "--port=5002"]
+
+ENTRYPOINT ["app/script/entrypoint"]

@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+
+redis_ready() {
+  echo "checking redis server availability"
+  apt-get update  &> /dev/null &&
+  apt-get install -y iputils-ping &> /dev/null &&
+  ping -c 1 redis
+}
+
+rabbitmq_ready() {
+  echo "checking rabbitmq server availability"
+  ping -c 1 rabbitmq
+}
+
+until redis_ready; do
+  >&2 echo 'redis server not available'
+  sleep 1
+done
+>&2 echo 'redis server is available'
+
+until rabbitmq_ready; do
+  >&2 echo 'rabbitmq server not available'
+  sleep 1
+done
+>&2 echo 'rabbitmq server is available'
+
+celery -A app.celery_app:app worker -l INFO

@@ -4,14 +4,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: flask_notification_service
+    image: flask_kafka_notification_service
     environment:
       DB_USER: ${DB_USER}
       DB_NAME: ${DB_NAME}
       DB_PASSWORD: ${DB_PASSWORD}
       FLASK_ENV: ${FLASK_ENV}
       REDIS_SERVER: ${REDIS_SERVER}
-    command: 'flask run --host=0.0.0.0 --port=5001'
+    command: app/script/start_backend
     ports:
       - 8001:5001
     networks:
@@ -37,8 +37,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: flask_notification_service_consumer
-    command: "python3 app/consumer.py"
+    image: flask_kafka_notification_service_consumer
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+    command: app/script/start_consumer
     networks:
       - notification_net
     depends_on:
@@ -51,18 +53,28 @@ services:
       image: flask_notification_service_celery_worker
       networks:
         - notification_net
-      command: "celery -A app.celery_app:app worker -l INFO"
+      command: app/script/start_celery_worker
       volumes:
         - .:/app
       depends_on:
         - redis
+        - rabbitmq
   redis:
       image: redis:6.2.6-alpine
       command: redis-server
       ports:
-          - '6380:6379'
+          - 6380:6379
       networks:
         - notification_net
+  rabbitmq:
+    image: rabbitmq:3.9.8-management-alpine
+    ports:
+      # AMQP protocol port
+      - 5673:5672
+      # HTTP management UI
+      - 15673:15672
+    networks:
+      - notification_net
 networks:
   notification_net:
     external:

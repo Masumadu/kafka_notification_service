@@ -13,7 +13,7 @@ obj_graph_customer = pinject.new_object_graph(
 customer_controller = obj_graph_customer.provide(CustomerController)
 
 
-@customer.route("/index", methods=["GET"])
+@customer.route("/", methods=["GET"])
 def index():
     return "index"
 
